@@ -4,34 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiamRice.pi | Premium Thai Rice Marketplace</title>
-    
+
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    
     <script>
+        // 1. ฟังก์ชันจัดการเมื่อพบรายการโอนเงินค้างเก่า
+        function onIncompletePaymentFound(payment) {
+            console.log("พบรายการจ่ายเงินที่ยังไม่สมบูรณ์:", payment);
+        }
+
+        // 2. ฟังก์ชันหลักสำหรับเชื่อมต่อและล็อกอิน Pi Network
         async function initPiAuth() {
             try {
                 if (!window.Pi) {
-                    console.error("Pi SDK not found. Please open in Pi Browser.");
+                    console.error("ไม่พบ Pi SDK กรุณาเปิดผ่าน Pi Browser");
                     return;
                 }
-                // Initializing Pi SDK (Version 2.0 with Sandbox enabled)
-                await window.Pi.init({ version: "2.0", sandbox: true });
-                console.log("Pi SDK initialized successfully.");
-                
-                const scopes = ['username'];
-                function onIncompletePaymentFound(payment) {
-                    console.log("Incomplete payment found:", payment);
-                }
 
-                // Automatically trigger authentication
+                // เริ่มต้นตั้งค่า Pi SDK Sandbox
+                await window.Pi.init({ version: "2.0", sandbox: true });
+                console.log("Pi SDK เริ่มทำงานสำเร็จ");
+
+                // เรียกยืนยันตัวตน (Sign-in) ทันที
+                const scopes = ['username', 'payments'];
                 const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
-                console.log("Pi Authentication successful for:", auth.user.username);
+                
+                console.log("เข้าสู่ระบบสำเร็จ! ชื่อผู้ใช้:", auth.user.username);
+                
             } catch (error) {
-                console.error("Pi Authentication error:", error);
+                console.error("การยืนยันตัวตนผิดพลาด:", error);
             }
         }
-        
-        // Trigger auth automatically when the app loads
+
+        // 3. สั่งให้รันอัตโนมัติทันทีเมื่อแอปโหลด
         window.addEventListener('DOMContentLoaded', initPiAuth);
     </script>
 
